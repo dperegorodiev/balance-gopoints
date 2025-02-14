@@ -1,4 +1,10 @@
 package org.example.balance.exception;
 
-public class InsufficientFundsException {
+import java.util.UUID;
+
+public class InsufficientFundsException extends RuntimeException {
+
+    public InsufficientFundsException(UUID id) {
+        super("Недостаточно средств на счете: " + id);
+    }
 }
