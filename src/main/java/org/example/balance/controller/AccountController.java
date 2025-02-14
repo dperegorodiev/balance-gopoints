@@ -22,23 +22,28 @@ public class AccountController {
         this.accountService = accountService;
     }
 
+    // пополнение
     @PostMapping("/{id}/deposit")
     public ResponseEntity<Void> deposit(@PathVariable UUID id,
                                         @RequestBody @Valid OperationRequest request) {
         accountService.deposit(id, request.getAmount());
         return ResponseEntity.ok().build();
     }
-//
-//    @PostMapping("/{id}/withdrew")
-//    public ResponseEntity<Void> withdrew() {
-//        return null;
-//    }
+
+    //списание
+    @PostMapping("/{id}/withdrew")
+    public ResponseEntity<Void> withdrew(@PathVariable UUID id,
+                                         @RequestBody @Valid OperationRequest request) {
+        accountService.withdraw(id, request.getAmount());
+        return ResponseEntity.ok().build();
+    }
 //
 //    @PostMapping("/{formId}/transfer/{toId}")
 //    public ResponseEntity<Void> transfer() {
 //        return null;
 //    }
-//
+
+    //запрос баланса
     @GetMapping("/{id}/balance")
     public ResponseEntity<BigDecimal> getBalance(@PathVariable UUID id) {
         return ResponseEntity.ok(accountService.getBalance(id));

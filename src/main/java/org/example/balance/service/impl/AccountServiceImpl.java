@@ -4,6 +4,7 @@ package org.example.balance.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.balance.exception.AccountNotFoundException;
+import org.example.balance.exception.InsufficientFundsException;
 import org.example.balance.model.Account;
 import org.example.balance.model.Transaction;
 import org.example.balance.model.TransactionType;
@@ -53,10 +54,18 @@ public class AccountServiceImpl implements AccountService {
         transactionRepository.save(transaction);
     }
 
-//    @Override
-//    public void withdraw(UUID accountId, BigDecimal amount) {
-//
-//    }
+    @Override
+    public void withdraw(UUID accountId, BigDecimal amount) {
+        Account account = accountRepository.findByIdWithLock(accountId)
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
+        if (account.getBalance().compareTo(amount) < 0) {
+            throw new InsufficientFundsException(accountId);
+        }
+        account.setBalance(account.getBalance().subtract(amount));
+        accountRepository.save(account);
+
+        createTransaction(account, amount, TransactionType.WITHDRAWAL);
+    }
 //
 //    @Override
 //    public void transfer(UUID fromId, UUID toId, BigDecimal amount) {
