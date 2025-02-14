@@ -1,7 +1,7 @@
 package org.example.balance.service.impl;
 
 
-import jakarta.transaction.Transactional;
+
 import lombok.extern.slf4j.Slf4j;
 import org.example.balance.exception.AccountNotFoundException;
 import org.example.balance.model.Account;
@@ -11,6 +11,7 @@ import org.example.balance.repository.AccountRepository;
 import org.example.balance.repository.TransactionRepository;
 import org.example.balance.service.AccountService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -34,9 +35,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void deposit(UUID accountId, BigDecimal amount) {
-        Account account = accountRepository.findById(accountId)
+        Account account = accountRepository.findByIdWithLock(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
-
         account.setBalance(account.getBalance().add(amount));
         accountRepository.save(account);
 
@@ -63,10 +63,13 @@ public class AccountServiceImpl implements AccountService {
 //
 //    }
 //
-//    @Override
-//    public BigDecimal getBalance(UUID accountId) {
-//        return null;
-//    }
+    @Override
+    @Transactional(readOnly = true)
+    public BigDecimal getBalance(UUID accountId) {
+        return accountRepository.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException(accountId))
+                .getBalance();
+    }
 //
 //    @Override
 //    public List<Transaction> getStatement(UUID accountId, LocalDateTime from, LocalDateTime to) {

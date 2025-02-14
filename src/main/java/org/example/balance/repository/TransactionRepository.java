@@ -11,9 +11,6 @@ import java.util.UUID;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
 
-    // Метод для поиска всех транзакций по счету
-    List<Transaction> findByAccountId(UUID accountId);
-
     // Метод для поиска транзакций по счету за определенный период
     List<Transaction> findByAccountIdAndCreatedAtBetween(UUID accountId, LocalDateTime from, LocalDateTime to);
 }

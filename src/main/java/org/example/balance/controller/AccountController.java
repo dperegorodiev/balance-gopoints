@@ -22,9 +22,10 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    @PostMapping("/deposit")
-    public ResponseEntity<Void> deposit(@RequestBody @Valid OperationRequest request) {
-        accountService.deposit(request.getAccountId(), request.getAmount());
+    @PostMapping("/{id}/deposit")
+    public ResponseEntity<Void> deposit(@PathVariable UUID id,
+                                        @RequestBody @Valid OperationRequest request) {
+        accountService.deposit(id, request.getAmount());
         return ResponseEntity.ok().build();
     }
 //
@@ -38,10 +39,10 @@ public class AccountController {
 //        return null;
 //    }
 //
-//    @GetMapping("/{id}/balance")
-//    public ResponseEntity<BigDecimal> getBalance(){
-//        return ResponseEntity.ok(BigDecimal.ZERO);
-//    }
+    @GetMapping("/{id}/balance")
+    public ResponseEntity<BigDecimal> getBalance(@PathVariable UUID id) {
+        return ResponseEntity.ok(accountService.getBalance(id));
+    }
 //
 //    @GetMapping("/{id}/statement")
 //    public ResponseEntity<List<Transaction>> getStatement(){
