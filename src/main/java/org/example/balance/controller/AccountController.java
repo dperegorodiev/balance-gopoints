@@ -1,13 +1,16 @@
 package org.example.balance.controller;
 
-import jakarta.transaction.Transaction;
+
 import jakarta.validation.Valid;
 import org.example.balance.dto.OperationRequest;
+import org.example.balance.model.Transaction;
 import org.example.balance.service.AccountService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -51,10 +54,14 @@ public class AccountController {
     public ResponseEntity<BigDecimal> getBalance(@PathVariable UUID id) {
         return ResponseEntity.ok(accountService.getBalance(id));
     }
-//
-//    @GetMapping("/{id}/statement")
-//    public ResponseEntity<List<Transaction>> getStatement(){
-//        return ResponseEntity.ok(List.of());
-//    }
+
+    // выписка
+    @GetMapping("/{id}/statement")
+    public ResponseEntity<List<Transaction>> getStatement(
+            @PathVariable UUID id,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
+        return ResponseEntity.ok(accountService.getStatement(id, from, to));
+    }
 }
 

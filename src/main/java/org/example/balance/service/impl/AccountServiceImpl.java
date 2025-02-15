@@ -2,7 +2,6 @@ package org.example.balance.service.impl;
 
 
 
-import lombok.extern.slf4j.Slf4j;
 import org.example.balance.exception.AccountNotFoundException;
 import org.example.balance.exception.InsufficientFundsException;
 import org.example.balance.model.Account;
@@ -16,10 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 
-@Slf4j
 @Service
 @Transactional
 public class AccountServiceImpl implements AccountService {
@@ -116,9 +115,16 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new AccountNotFoundException(accountId))
                 .getBalance();
     }
-//
-//    @Override
-//    public List<Transaction> getStatement(UUID accountId, LocalDateTime from, LocalDateTime to) {
-//        return List.of();
-//    }
+
+    // выписка
+    @Override
+    @Transactional(readOnly = true)
+    public List<Transaction> getStatement(UUID accountId, LocalDateTime from, LocalDateTime to) {
+
+        if(!accountRepository.existsById(accountId)) {
+            throw new AccountNotFoundException(accountId);
+        }
+
+        return transactionRepository.findByAccountIdAndCreatedAtBetween(accountId, from, to);
+    }
 }
