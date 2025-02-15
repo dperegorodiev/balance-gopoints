@@ -56,6 +56,19 @@ public class AccountServiceImpl implements AccountService {
         transactionRepository.save(transaction);
     }
 
+    // создаем запись в истории операций между счетами
+    private void creatTransferTransaction(Account from, Account to, BigDecimal amount) {
+        Transaction transaction = new Transaction();
+        transaction.setId(UUID.randomUUID());
+        transaction.setAccountId(from.getId());
+        transaction.setToAccountId(to.getId());
+        transaction.setType(TransactionType.TRANSFER);
+        transaction.setAmount(amount);
+        transaction.setBalanceAfter(from.getBalance());
+        transaction.setCreatedAt(LocalDateTime.now());
+        transactionRepository.save(transaction);
+    }
+
     // списание
     @Override
     public void withdraw(UUID accountId, BigDecimal amount) {
@@ -91,6 +104,8 @@ public class AccountServiceImpl implements AccountService {
 
         accountRepository.save(from);
         accountRepository.save(to);
+
+        creatTransferTransaction(from, to, amount);
     }
 
     // запрос баланса
