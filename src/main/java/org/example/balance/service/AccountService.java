@@ -12,7 +12,7 @@ public interface AccountService {
 
     void deposit(UUID accountId, BigDecimal amount);
     void withdraw(UUID accountId, BigDecimal amount);
-//    void transfer(UUID fromId, UUID toId, BigDecimal amount);
+    void transfer(UUID fromId, UUID toId, BigDecimal amount);
 //
     BigDecimal getBalance(UUID accountId);
 //    List<Transaction> getStatement(UUID accountId, LocalDateTime from, LocalDateTime to);

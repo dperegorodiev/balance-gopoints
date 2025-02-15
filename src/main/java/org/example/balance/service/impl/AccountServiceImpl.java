@@ -33,7 +33,7 @@ public class AccountServiceImpl implements AccountService {
         this.transactionRepository = transactionRepository;
     }
 
-
+    // зачисление
     @Override
     public void deposit(UUID accountId, BigDecimal amount) {
         Account account = accountRepository.findByIdWithLock(accountId)
@@ -43,6 +43,8 @@ public class AccountServiceImpl implements AccountService {
 
         createTransaction(account, amount, TransactionType.DEPOSIT);
     }
+
+    // создаем запись в истории операций по счету
     private void createTransaction(Account account, BigDecimal amount, TransactionType type) {
         Transaction transaction = new Transaction();
         transaction.setId(UUID.randomUUID());
@@ -54,6 +56,7 @@ public class AccountServiceImpl implements AccountService {
         transactionRepository.save(transaction);
     }
 
+    // списание
     @Override
     public void withdraw(UUID accountId, BigDecimal amount) {
         Account account = accountRepository.findByIdWithLock(accountId)
@@ -66,12 +69,31 @@ public class AccountServiceImpl implements AccountService {
 
         createTransaction(account, amount, TransactionType.WITHDRAWAL);
     }
-//
-//    @Override
-//    public void transfer(UUID fromId, UUID toId, BigDecimal amount) {
-//
-//    }
-//
+
+    // перевод
+    @Override
+    public void transfer(UUID fromId, UUID toId, BigDecimal amount) {
+
+        UUID firstLock = fromId.compareTo(toId) < 0 ? fromId : toId;
+        UUID secondLock = fromId.compareTo(toId) < 0 ? toId : fromId;
+
+        Account from = accountRepository.findByIdWithLock(firstLock)
+                .orElseThrow(() -> new AccountNotFoundException(firstLock));
+        Account to = accountRepository.findByIdWithLock(secondLock)
+                .orElseThrow(() -> new AccountNotFoundException(secondLock));
+
+        if (from.getBalance().compareTo(amount) < 0) {
+            throw new InsufficientFundsException(fromId);
+        }
+
+        from.setBalance(from.getBalance().subtract(amount));
+        to.setBalance(to.getBalance().add(amount));
+
+        accountRepository.save(from);
+        accountRepository.save(to);
+    }
+
+    // запрос баланса
     @Override
     @Transactional(readOnly = true)
     public BigDecimal getBalance(UUID accountId) {

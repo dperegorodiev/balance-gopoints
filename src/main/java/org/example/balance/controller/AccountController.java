@@ -38,10 +38,13 @@ public class AccountController {
         return ResponseEntity.ok().build();
     }
 //
-//    @PostMapping("/{formId}/transfer/{toId}")
-//    public ResponseEntity<Void> transfer() {
-//        return null;
-//    }
+    @PostMapping("/{formId}/transfer/{toId}")
+    public ResponseEntity<Void> transfer(@PathVariable UUID formId,
+                                         @PathVariable UUID toId,
+                                         @RequestBody @Valid OperationRequest request) {
+        accountService.transfer(formId, toId, request.getAmount());
+        return ResponseEntity.ok().build();
+    }
 
     //запрос баланса
     @GetMapping("/{id}/balance")
