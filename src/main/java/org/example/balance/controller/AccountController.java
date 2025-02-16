@@ -40,7 +40,8 @@ public class AccountController {
         accountService.withdraw(id, request.getAmount());
         return ResponseEntity.ok().build();
     }
-//
+
+    // перевод со счета на счет
     @PostMapping("/{formId}/transfer/{toId}")
     public ResponseEntity<Void> transfer(@PathVariable UUID formId,
                                          @PathVariable UUID toId,
