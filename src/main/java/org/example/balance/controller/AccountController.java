@@ -2,6 +2,8 @@ package org.example.balance.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,12 +29,18 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping("/{id}/deposit")
-    @Operation(summary = "Пополнение счета",
-            description = "Добавление указанной суммы к балансу счета")
-    @ApiResponse(responseCode = "200", description = "Пополнение выполнено успешно")
-    @ApiResponse(responseCode = "400", description = "Некорректный ввод")
-    @ApiResponse(responseCode = "404", description = "Счет не найден")
-    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    @Operation(operationId = "deposit",
+            summary = "Пополнение счета",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Пополнение выполнено успешно",
+                            content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "400", description = "Некорректный ввод",
+                            content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "404", description = "Счет не найден",
+                            content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера",
+                            content = @Content(mediaType = "application/json"))
+            })
     public void accountReplenishment(@Parameter(description = "Идентификатор счета", required = true)
                                         @PathVariable UUID id,
                                         @RequestBody @Valid OperationRequest request) {
@@ -41,12 +49,18 @@ public class AccountController {
 
 
     @PostMapping("/{id}/withdrew")
-    @Operation(summary = "Списание средств",
-            description = "Вычитание указанной суммы с баланса счета")
-    @ApiResponse(responseCode = "200", description = "Списание выполнено успешно")
-    @ApiResponse(responseCode = "400", description = "Некорректный ввод")
-    @ApiResponse(responseCode = "404", description = "Счет не найден")
-    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    @Operation(operationId = "withdrew",
+            summary = "Списание средств",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Списание выполнено успешно",
+                            content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "400", description = "Некорректный ввод",
+                            content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "404", description = "Счет не найден",
+                            content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера",
+                            content = @Content(mediaType = "application/json"))
+            })
     public void accountWithdrew(@Parameter(description = "Идентификатор счета", required = true)
                                          @PathVariable UUID id,
                                          @RequestBody @Valid OperationRequest request) {
@@ -55,12 +69,18 @@ public class AccountController {
 
 
     @PostMapping("/{formId}/transfer/{toId}")
-    @Operation(summary = "Перевод между счетами",
-            description = "Перевод указанной суммы с одного счета на другой")
-    @ApiResponse(responseCode = "200", description = "Перевод выполнен успешно")
-    @ApiResponse(responseCode = "400", description = "Некорректный ввод")
-    @ApiResponse(responseCode = "404", description = "Один или оба счета не найдены")
-    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    @Operation(operationId = "transfer",
+            summary = "Перевод между счетами",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Перевод выполнен успешно",
+                            content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "400", description = "Некорректный ввод",
+                            content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "404", description = "Один или оба счета не найдены",
+                            content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера",
+                            content = @Content(mediaType = "application/json"))
+            })
     public void transferFromAccountToAccount(@Parameter(description = "Идентификатор счета отправителя", required = true)
                                          @PathVariable UUID formId,
                                          @Parameter(description = "Идентификатор счета получателя", required = true)
@@ -71,10 +91,15 @@ public class AccountController {
 
 
     @GetMapping("/{id}/balance")
-    @Operation(summary = "Получение баланса",
-            description = "Получение текущего баланса указанного счета")
-    @ApiResponse(responseCode = "200", description = "Баланс успешно получен")
-    @ApiResponse(responseCode = "404", description = "Счет не найден")
+    @Operation(operationId = "getBalance",
+            summary = "Получение баланса",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Баланс успешно получен",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = BigDecimal.class))),
+                    @ApiResponse(responseCode = "404", description = "Счет не найден",
+                            content = @Content(mediaType = "application/json"))
+            })
     public BigDecimal getBalance(@Parameter(description = "Идентификатор счета", required = true)
                                                  @PathVariable UUID id) {
         return accountService.getBalance(id);
@@ -82,11 +107,17 @@ public class AccountController {
 
 
     @GetMapping("/{id}/statement")
-    @Operation(summary = "Получение выписки",
-            description = "Получение истории транзакций для указанного счета за выбранный период")
-    @ApiResponse(responseCode = "200", description = "Выписка успешно получена")
-    @ApiResponse(responseCode = "400", description = "Некорректный ввод (даты указаны неверно)")
-    @ApiResponse(responseCode = "404", description = "Счет не найден")
+    @Operation(operationId = "getStatement",
+            summary = "Получение выписки",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Выписка успешно получена",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = Transaction.class, type = "array"))),
+                    @ApiResponse(responseCode = "400", description = "Некорректный ввод (даты указаны неверно)",
+                            content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "404", description = "Счет не найден",
+                            content = @Content(mediaType = "application/json"))
+            })
     public List<Transaction> getStatement(@Parameter(description = "Идентификатор счета", required = true)
             @PathVariable UUID id,
             @Parameter(description = "Начальная дата выписки в формате: 2025-02-13T00:00:00", required = true)
