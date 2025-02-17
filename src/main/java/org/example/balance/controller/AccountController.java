@@ -33,10 +33,10 @@ public class AccountController {
     @ApiResponse(responseCode = "400", description = "Некорректный ввод")
     @ApiResponse(responseCode = "404", description = "Счет не найден")
     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
-    public void deposit(@Parameter(description = "Идентификатор счета", required = true)
+    public void accountReplenishment(@Parameter(description = "Идентификатор счета", required = true)
                                         @PathVariable UUID id,
                                         @RequestBody @Valid OperationRequest request) {
-        accountService.deposit(id, request.getAmount());
+        accountService.accountReplenishment(id, request.getAmount());
     }
 
 
@@ -47,10 +47,10 @@ public class AccountController {
     @ApiResponse(responseCode = "400", description = "Некорректный ввод")
     @ApiResponse(responseCode = "404", description = "Счет не найден")
     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
-    public void withdrew(@Parameter(description = "Идентификатор счета", required = true)
+    public void accountWithdrew(@Parameter(description = "Идентификатор счета", required = true)
                                          @PathVariable UUID id,
                                          @RequestBody @Valid OperationRequest request) {
-        accountService.withdraw(id, request.getAmount());
+        accountService.accountWithdrew(id, request.getAmount());
     }
 
 
@@ -61,12 +61,12 @@ public class AccountController {
     @ApiResponse(responseCode = "400", description = "Некорректный ввод")
     @ApiResponse(responseCode = "404", description = "Один или оба счета не найдены")
     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
-    public void transfer(@Parameter(description = "Идентификатор счета отправителя", required = true)
+    public void transferFromAccountToAccount(@Parameter(description = "Идентификатор счета отправителя", required = true)
                                          @PathVariable UUID formId,
                                          @Parameter(description = "Идентификатор счета получателя", required = true)
                                          @PathVariable UUID toId,
                                          @RequestBody @Valid OperationRequest request) {
-        accountService.transfer(formId, toId, request.getAmount());
+        accountService.transferFromAccountToAccount(formId, toId, request.getAmount());
     }
 
 

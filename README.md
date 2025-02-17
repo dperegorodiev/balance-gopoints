@@ -8,7 +8,7 @@
 - Язык: Java 21
 - Фреймворк: Spring Boot 3.2.2
 - База данных: PostgreSQL
-- Миграции: Flyway
+- Миграции: Liquibase
 - Документация API: Swagger
 
 ## Функциональность
@@ -36,13 +36,6 @@
 
 ## Перед началом работы нужно:
 - Настроить подключение к внешней бд PostgreSQL
-- Поменять настройки в `application.properties` на spring.jpa.hibernate.ddl-auto=update
-(только для первоначальной настройки), после первого запуска рекомендую вернуть spring.jpa.hibernate.ddl-auto=validate
-- Чтобы проверить работу эндпоинтов, нужно добавить пару счетов:
-  INSERT INTO accounts (id, balance, created_at)
-  VALUES
-  ('550e8400-e29b-41d4-a716-446655440000', 1000.00, NOW()),
-  ('123e4567-e89b-12d3-a456-426614174000', 500.00, NOW());
 
 ## Документация API 
 После запуска приложения документация доступна по адресу Swagger UI: http://localhost:8080/swagger-ui.html

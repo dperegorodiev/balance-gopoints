@@ -39,33 +39,30 @@ public class AccountControllerIntegrationTest {
         accountId = UUID.randomUUID();
     }
 
-    // пополнение
     @Test
-    void testDeposit() throws Exception {
+    void testAccountReplenishment() throws Exception {
         mockMvc.perform(post("/api/v1/accounts/{id}/deposit", accountId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"amount\": 10}")
                         .accept(MediaType.APPLICATION_JSON))
                         .andExpect(status().isOk());
 
-        verify(accountService).deposit(accountId, BigDecimal.TEN);
+        verify(accountService).accountReplenishment(accountId, BigDecimal.TEN);
     }
 
-    // списание
     @Test
-    void testWithdraw() throws Exception {
+    void testAccountWithdrew() throws Exception {
         mockMvc.perform(post("/api/v1/accounts/{id}/withdrew", accountId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"amount\": 10}")
                         .accept(MediaType.APPLICATION_JSON))
                         .andExpect(status().isOk());
 
-        verify(accountService).withdraw(accountId, BigDecimal.TEN);
+        verify(accountService).accountWithdrew(accountId, BigDecimal.TEN);
     }
 
-    // перевод
     @Test
-    void testTransfer() throws Exception {
+    void testTransferFromAccountToAccount() throws Exception {
         UUID toAccountId = UUID.randomUUID();
 
         mockMvc.perform(post("/api/v1/accounts/{formId}/transfer/{toId}", accountId, toAccountId)
@@ -74,10 +71,9 @@ public class AccountControllerIntegrationTest {
                         .accept(MediaType.APPLICATION_JSON))
                         .andExpect(status().isOk());
 
-        verify(accountService).transfer(accountId, toAccountId, BigDecimal.TEN);
+        verify(accountService).transferFromAccountToAccount(accountId, toAccountId, BigDecimal.TEN);
     }
 
-    // баланс
     @Test
     void testGetBalance() throws Exception {
         when(accountService.getBalance(accountId)).thenReturn(BigDecimal.TEN);
@@ -89,7 +85,6 @@ public class AccountControllerIntegrationTest {
         verify(accountService).getBalance(accountId);
     }
 
-    // выписка
     @Test
     void testGetStatement() throws Exception {
         LocalDateTime from = LocalDateTime.now().minusDays(1);
@@ -108,9 +103,9 @@ public class AccountControllerIntegrationTest {
         verify(accountService).getStatement(accountId, from, to);
     }
 
-    // пополнение счета отрицательной суммой
+
     @Test
-    void testDepositWithInvalidAmount() throws Exception {
+    void testAccountReplenishmentWithInvalidAmount() throws Exception {
         mockMvc.perform(post("/api/v1/accounts/{id}/deposit", accountId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"amount\": -10}")

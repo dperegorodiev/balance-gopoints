@@ -30,7 +30,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public void deposit(UUID accountId, BigDecimal amount) {
+    public void accountReplenishment(UUID accountId, BigDecimal amount) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
         account.setBalance(account.getBalance().add(amount));
@@ -65,7 +65,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public void withdraw(UUID accountId, BigDecimal amount) {
+    public void accountWithdrew(UUID accountId, BigDecimal amount) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
         if (account.getBalance().compareTo(amount) < 0) {
@@ -79,7 +79,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public void transfer(UUID fromId, UUID toId, BigDecimal amount) {
+    public void transferFromAccountToAccount(UUID fromId, UUID toId, BigDecimal amount) {
 
         UUID firstLock = fromId.compareTo(toId) < 0 ? fromId : toId;
         UUID secondLock = fromId.compareTo(toId) < 0 ? toId : fromId;

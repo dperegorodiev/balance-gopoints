@@ -57,12 +57,12 @@ public class AccountServiceImplTest {
 
     // пополнение
     @Test
-    void deposit_ShouldIncreaseBalance() {
+    void accountReplenishment_ShouldIncreaseBalance() {
 
         BigDecimal amount = BigDecimal.valueOf(100);
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
 
-        accountService.deposit(ACCOUNT_ID, amount);
+        accountService.accountReplenishment(ACCOUNT_ID, amount);
 
         verify(accountRepository).save(testAccount);
         verify(transactionRepository).save(any(Transaction.class));
@@ -71,23 +71,23 @@ public class AccountServiceImplTest {
 
     // пополнение не существующего счета
     @Test
-    void deposit_ShouldThrowException_WhenAccountNotFound() {
+    void accountReplenishment_ShouldThrowException_WhenAccountNotFound() {
 
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
 
         assertThrows(AccountNotFoundException.class, () ->
-                accountService.deposit(ACCOUNT_ID, BigDecimal.valueOf(100.00))
+                accountService.accountReplenishment(ACCOUNT_ID, BigDecimal.valueOf(100.00))
         );
     }
 
     // списание
     @Test
-    void withdraw_ShouldDecreaseBalance_WhenSufficientFunds() {
+    void accountWithdrew_ShouldDecreaseBalance_WhenSufficientFunds() {
 
         BigDecimal amount = BigDecimal.valueOf(100.00);
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
 
-        accountService.withdraw(ACCOUNT_ID, amount);
+        accountService.accountWithdrew(ACCOUNT_ID, amount);
 
         verify(accountRepository).save(testAccount);
         verify(transactionRepository).save(any(Transaction.class));
@@ -96,24 +96,24 @@ public class AccountServiceImplTest {
 
     // списание больше чем есть на балансе
     @Test
-    void withdraw_ShouldThrowException_WhenInsufficientFunds() {
+    void accountWithdrew_ShouldThrowException_WhenInsufficientFunds() {
 
         BigDecimal amount = BigDecimal.valueOf(2000.00);
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
 
         assertThrows(InsufficientFundsException.class, () ->
-                accountService.withdraw(ACCOUNT_ID, amount)
+                accountService.accountWithdrew(ACCOUNT_ID, amount)
         );
     }
 
     // списание с не существующего счета
     @Test
-    void withdraw_ShouldThrowException_WhenAccountNotFound() {
+    void accountWithdrew_ShouldThrowException_WhenAccountNotFound() {
 
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
 
         assertThrows(AccountNotFoundException.class, () ->
-                accountService.withdraw(ACCOUNT_ID, BigDecimal.valueOf(100.00))
+                accountService.accountWithdrew(ACCOUNT_ID, BigDecimal.valueOf(100.00))
         );
     }
 
@@ -141,7 +141,7 @@ public class AccountServiceImplTest {
 
     // перевод между счетами
     @Test
-    void transfer_ShouldCorrectlyTransferMoney() {
+    void transferFromAccountToAccount_ShouldCorrectlyTransferMoney() {
 
         UUID toAccountId = UUID.randomUUID();
         Account toAccount = new Account();
@@ -160,7 +160,7 @@ public class AccountServiceImplTest {
             return null;
         }).when(accountRepository).save(any(Account.class));
 
-        accountService.transfer(ACCOUNT_ID, toAccountId, amount);
+        accountService.transferFromAccountToAccount(ACCOUNT_ID, toAccountId, amount);
 
         assertEquals(INITIAL_BALANCE.subtract(amount), testAccount.getBalance());
         assertEquals(BigDecimal.valueOf(600.00), toAccount.getBalance());
@@ -168,7 +168,7 @@ public class AccountServiceImplTest {
 
     // перевод между счетами если не достаточно денег
     @Test
-    void transfer_ShouldThrowException_WhenInsufficientFunds() {
+    void transferFromAccountToAccount_ShouldThrowException_WhenInsufficientFunds() {
 
         UUID toAccountId = UUID.randomUUID();
         Account toAccount = new Account();
@@ -181,33 +181,33 @@ public class AccountServiceImplTest {
         when(accountRepository.findById(toAccountId)).thenReturn(Optional.of(toAccount));
 
         assertThrows(InsufficientFundsException.class, () ->
-                accountService.transfer(ACCOUNT_ID, toAccountId, amount)
+                accountService.transferFromAccountToAccount(ACCOUNT_ID, toAccountId, amount)
         );
     }
 
     // перевод между счетами если исходящий счет не существует
     @Test
-    void transfer_ShouldThrowException_WhenSourceAccountNotFound() {
+    void transferFromAccountToAccount_ShouldThrowException_WhenSourceAccountNotFound() {
 
         UUID toAccountId = UUID.randomUUID();
         UUID firstLock = ACCOUNT_ID.compareTo(toAccountId) < 0 ? ACCOUNT_ID : toAccountId;
         when(accountRepository.findById(firstLock)).thenReturn(Optional.empty());
 
         assertThrows(AccountNotFoundException.class, () ->
-                accountService.transfer(ACCOUNT_ID, toAccountId, BigDecimal.valueOf(100.00))
+                accountService.transferFromAccountToAccount(ACCOUNT_ID, toAccountId, BigDecimal.valueOf(100.00))
         );
     }
 
-    // перевод между счетами если счет получателя  не существует
+    // перевод между счетами если счет получателя не существует
     @Test
-    void transfer_ShouldThrowException_WhenDestinationAccountNotFound() {
+    void transferFromAccountToAccount_ShouldThrowException_WhenDestinationAccountNotFound() {
 
         UUID toAccountId = UUID.randomUUID();
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
         when(accountRepository.findById(toAccountId)).thenReturn(Optional.empty());
 
         assertThrows(AccountNotFoundException.class, () ->
-                accountService.transfer(ACCOUNT_ID, toAccountId, BigDecimal.valueOf(100.00))
+                accountService.transferFromAccountToAccount(ACCOUNT_ID, toAccountId, BigDecimal.valueOf(100.00))
         );
     }
 

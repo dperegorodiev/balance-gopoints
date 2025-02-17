@@ -11,9 +11,9 @@ import java.util.UUID;
 
 public interface AccountService {
 
-    void deposit(UUID accountId, BigDecimal amount);
-    void withdraw(UUID accountId, BigDecimal amount);
-    void transfer(UUID fromId, UUID toId, BigDecimal amount);
+    void accountReplenishment(UUID accountId, BigDecimal amount);
+    void accountWithdrew(UUID accountId, BigDecimal amount);
+    void transferFromAccountToAccount(UUID fromId, UUID toId, BigDecimal amount);
     BigDecimal getBalance(UUID accountId);
     List<Transaction> getStatement(UUID accountId, LocalDateTime from, LocalDateTime to);
 }
