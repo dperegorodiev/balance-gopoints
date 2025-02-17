@@ -1,6 +1,7 @@
 package org.example.balance;
 
 import org.springframework.boot.SpringApplication;
+import org.testcontainers.utility.TestcontainersConfiguration;
 
 public class TestBalanceApplication {
 

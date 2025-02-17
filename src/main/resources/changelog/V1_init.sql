@@ -1,3 +1,6 @@
+--liquibase formatted sql
+--changeset dima.peregorodiev:create_tables
+
 CREATE TABLE accounts (
                           id UUID PRIMARY KEY,
                           balance DECIMAL(19,2) NOT NULL,

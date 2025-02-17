@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: balance
+
+# Подключение к БД
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
+
+# Настройки JPA/Hibernate
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+
+
+springdoc:
+  swagger-ui.path: /swagger-ui.html
+  api-docs.path: /v3/api-docs

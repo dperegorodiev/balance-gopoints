@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - include:
+      file: changelog/V1_init.sql
+  - include:
+      file: changelog/V2_insertAccounts.sql

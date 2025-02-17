@@ -60,7 +60,7 @@ public class AccountServiceImplTest {
     void deposit_ShouldIncreaseBalance() {
 
         BigDecimal amount = BigDecimal.valueOf(100);
-        when(accountRepository.findByIdWithLock(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
 
         accountService.deposit(ACCOUNT_ID, amount);
 
@@ -73,7 +73,7 @@ public class AccountServiceImplTest {
     @Test
     void deposit_ShouldThrowException_WhenAccountNotFound() {
 
-        when(accountRepository.findByIdWithLock(ACCOUNT_ID)).thenReturn(Optional.empty());
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
 
         assertThrows(AccountNotFoundException.class, () ->
                 accountService.deposit(ACCOUNT_ID, BigDecimal.valueOf(100.00))
@@ -85,7 +85,7 @@ public class AccountServiceImplTest {
     void withdraw_ShouldDecreaseBalance_WhenSufficientFunds() {
 
         BigDecimal amount = BigDecimal.valueOf(100.00);
-        when(accountRepository.findByIdWithLock(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
 
         accountService.withdraw(ACCOUNT_ID, amount);
 
@@ -99,7 +99,7 @@ public class AccountServiceImplTest {
     void withdraw_ShouldThrowException_WhenInsufficientFunds() {
 
         BigDecimal amount = BigDecimal.valueOf(2000.00);
-        when(accountRepository.findByIdWithLock(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
 
         assertThrows(InsufficientFundsException.class, () ->
                 accountService.withdraw(ACCOUNT_ID, amount)
@@ -110,7 +110,7 @@ public class AccountServiceImplTest {
     @Test
     void withdraw_ShouldThrowException_WhenAccountNotFound() {
 
-        when(accountRepository.findByIdWithLock(ACCOUNT_ID)).thenReturn(Optional.empty());
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
 
         assertThrows(AccountNotFoundException.class, () ->
                 accountService.withdraw(ACCOUNT_ID, BigDecimal.valueOf(100.00))
@@ -150,8 +150,8 @@ public class AccountServiceImplTest {
 
         BigDecimal amount = BigDecimal.valueOf(100.00);
 
-        when(accountRepository.findByIdWithLock(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
-        when(accountRepository.findByIdWithLock(toAccountId)).thenReturn(Optional.of(toAccount));
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
+        when(accountRepository.findById(toAccountId)).thenReturn(Optional.of(toAccount));
         doAnswer(invocation -> {
             Account savedAccount = invocation.getArgument(0);
             if (savedAccount.getId().equals(toAccountId)) {
@@ -177,8 +177,8 @@ public class AccountServiceImplTest {
 
         BigDecimal amount = BigDecimal.valueOf(2000.00);
 
-        when(accountRepository.findByIdWithLock(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
-        when(accountRepository.findByIdWithLock(toAccountId)).thenReturn(Optional.of(toAccount));
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
+        when(accountRepository.findById(toAccountId)).thenReturn(Optional.of(toAccount));
 
         assertThrows(InsufficientFundsException.class, () ->
                 accountService.transfer(ACCOUNT_ID, toAccountId, amount)
@@ -191,7 +191,7 @@ public class AccountServiceImplTest {
 
         UUID toAccountId = UUID.randomUUID();
         UUID firstLock = ACCOUNT_ID.compareTo(toAccountId) < 0 ? ACCOUNT_ID : toAccountId;
-        when(accountRepository.findByIdWithLock(firstLock)).thenReturn(Optional.empty());
+        when(accountRepository.findById(firstLock)).thenReturn(Optional.empty());
 
         assertThrows(AccountNotFoundException.class, () ->
                 accountService.transfer(ACCOUNT_ID, toAccountId, BigDecimal.valueOf(100.00))
@@ -203,8 +203,8 @@ public class AccountServiceImplTest {
     void transfer_ShouldThrowException_WhenDestinationAccountNotFound() {
 
         UUID toAccountId = UUID.randomUUID();
-        when(accountRepository.findByIdWithLock(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
-        when(accountRepository.findByIdWithLock(toAccountId)).thenReturn(Optional.empty());
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
+        when(accountRepository.findById(toAccountId)).thenReturn(Optional.empty());
 
         assertThrows(AccountNotFoundException.class, () ->
                 accountService.transfer(ACCOUNT_ID, toAccountId, BigDecimal.valueOf(100.00))

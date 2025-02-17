@@ -2,6 +2,7 @@ package org.example.balance.service.impl;
 
 
 
+import lombok.RequiredArgsConstructor;
 import org.example.balance.exception.AccountNotFoundException;
 import org.example.balance.exception.InsufficientFundsException;
 import org.example.balance.model.Account;
@@ -20,22 +21,17 @@ import java.util.UUID;
 
 
 @Service
-@Transactional
+@RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
 
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
-    private TransactionRepository transactionRepository;
+    private final TransactionRepository transactionRepository;
 
-    public AccountServiceImpl(AccountRepository accountRepository, TransactionRepository transactionRepository) {
-        this.accountRepository = accountRepository;
-        this.transactionRepository = transactionRepository;
-    }
-
-    // зачисление
     @Override
+    @Transactional
     public void deposit(UUID accountId, BigDecimal amount) {
-        Account account = accountRepository.findByIdWithLock(accountId)
+        Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
         account.setBalance(account.getBalance().add(amount));
         accountRepository.save(account);
@@ -43,7 +39,7 @@ public class AccountServiceImpl implements AccountService {
         createTransaction(account, amount, TransactionType.DEPOSIT);
     }
 
-    // создаем запись в истории операций по счету
+
     private void createTransaction(Account account, BigDecimal amount, TransactionType type) {
         Transaction transaction = new Transaction();
         transaction.setId(UUID.randomUUID());
@@ -55,7 +51,6 @@ public class AccountServiceImpl implements AccountService {
         transactionRepository.save(transaction);
     }
 
-    // создаем запись в истории операций между счетами
     private void creatTransferTransaction(Account from, Account to, BigDecimal amount) {
         Transaction transaction = new Transaction();
         transaction.setId(UUID.randomUUID());
@@ -68,10 +63,10 @@ public class AccountServiceImpl implements AccountService {
         transactionRepository.save(transaction);
     }
 
-    // списание
     @Override
+    @Transactional
     public void withdraw(UUID accountId, BigDecimal amount) {
-        Account account = accountRepository.findByIdWithLock(accountId)
+        Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
         if (account.getBalance().compareTo(amount) < 0) {
             throw new InsufficientFundsException(accountId);
@@ -82,16 +77,16 @@ public class AccountServiceImpl implements AccountService {
         createTransaction(account, amount, TransactionType.WITHDRAWAL);
     }
 
-    // перевод
     @Override
+    @Transactional
     public void transfer(UUID fromId, UUID toId, BigDecimal amount) {
 
         UUID firstLock = fromId.compareTo(toId) < 0 ? fromId : toId;
         UUID secondLock = fromId.compareTo(toId) < 0 ? toId : fromId;
 
-        Account from = accountRepository.findByIdWithLock(firstLock)
+        Account from = accountRepository.findById(firstLock)
                 .orElseThrow(() -> new AccountNotFoundException(firstLock));
-        Account to = accountRepository.findByIdWithLock(secondLock)
+        Account to = accountRepository.findById(secondLock)
                 .orElseThrow(() -> new AccountNotFoundException(secondLock));
 
         if (from.getBalance().compareTo(amount) < 0) {
@@ -107,18 +102,14 @@ public class AccountServiceImpl implements AccountService {
         creatTransferTransaction(from, to, amount);
     }
 
-    // запрос баланса
     @Override
-    @Transactional(readOnly = true)
     public BigDecimal getBalance(UUID accountId) {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId))
                 .getBalance();
     }
 
-    // выписка
     @Override
-    @Transactional(readOnly = true)
     public List<Transaction> getStatement(UUID accountId, LocalDateTime from, LocalDateTime to) {
 
         if(!accountRepository.existsById(accountId)) {
