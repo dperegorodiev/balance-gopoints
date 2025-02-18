@@ -11,6 +11,7 @@ import java.util.UUID;
 @Table (name = "transactions")
 @Getter
 @Setter
+@Builder
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @AllArgsConstructor

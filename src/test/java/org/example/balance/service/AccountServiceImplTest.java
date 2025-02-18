@@ -245,13 +245,13 @@ public class AccountServiceImplTest {
 
     // метод для создания тестовых транзакций
     private Transaction createTestTransaction(UUID accountId, BigDecimal amount) {
-        Transaction transaction = new Transaction();
-        transaction.setId(UUID.randomUUID());
-        transaction.setAccountId(accountId);
-        transaction.setAmount(amount);
-        transaction.setBalanceAfter(amount);
-        transaction.setCreatedAt(LocalDateTime.now());
-        transaction.setType(TransactionType.DEPOSIT);
-        return transaction;
+        return Transaction.builder()
+                .id(UUID.randomUUID())
+                .accountId(accountId)
+                .amount(amount)
+                .balanceAfter(amount)
+                .createdAt(LocalDateTime.now())
+                .type(TransactionType.DEPOSIT)
+                .build();
     }
 }

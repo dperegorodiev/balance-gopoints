@@ -41,25 +41,29 @@ public class AccountServiceImpl implements AccountService {
 
 
     private void createTransaction(Account account, BigDecimal amount, TransactionType type) {
-        Transaction transaction = new Transaction();
-        transaction.setId(UUID.randomUUID());
-        transaction.setAccountId(account.getId());
-        transaction.setType(type);
-        transaction.setAmount(amount);
-        transaction.setBalanceAfter(account.getBalance());
-        transaction.setCreatedAt(LocalDateTime.now());
+        Transaction transaction = Transaction.builder()
+                .id(UUID.randomUUID())
+                .accountId(account.getId())
+                .type(type)
+                .amount(amount)
+                .balanceAfter(account.getBalance())
+                .createdAt(LocalDateTime.now())
+                .build();
+
         transactionRepository.save(transaction);
     }
 
     private void creatTransferTransaction(Account from, Account to, BigDecimal amount) {
-        Transaction transaction = new Transaction();
-        transaction.setId(UUID.randomUUID());
-        transaction.setAccountId(from.getId());
-        transaction.setToAccountId(to.getId());
-        transaction.setType(TransactionType.TRANSFER);
-        transaction.setAmount(amount);
-        transaction.setBalanceAfter(from.getBalance());
-        transaction.setCreatedAt(LocalDateTime.now());
+        Transaction transaction = Transaction.builder()
+                .id(UUID.randomUUID())
+                .accountId(from.getId())
+                .toAccountId(to.getId())
+                .type(TransactionType.TRANSFER)
+                .amount(amount)
+                .balanceAfter(from.getBalance())
+                .createdAt(LocalDateTime.now())
+                .build();
+
         transactionRepository.save(transaction);
     }
 
