@@ -85,13 +85,17 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public void transferFromAccountToAccount(UUID fromId, UUID toId, BigDecimal amount) {
 
+
         UUID firstLock = fromId.compareTo(toId) < 0 ? fromId : toId;
         UUID secondLock = fromId.compareTo(toId) < 0 ? toId : fromId;
 
-        Account from = accountRepository.findById(firstLock)
+        Account firstAccount = accountRepository.findById(firstLock)
                 .orElseThrow(() -> new AccountNotFoundException(firstLock));
-        Account to = accountRepository.findById(secondLock)
+        Account secondAccount = accountRepository.findById(secondLock)
                 .orElseThrow(() -> new AccountNotFoundException(secondLock));
+
+        Account from = firstAccount.getId().equals(fromId) ? firstAccount : secondAccount;
+        Account to = firstAccount.getId().equals(fromId) ? secondAccount : firstAccount;
 
         if (from.getBalance().compareTo(amount) < 0) {
             throw new InsufficientFundsException(fromId);

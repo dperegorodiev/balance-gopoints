@@ -143,27 +143,33 @@ public class AccountServiceImplTest {
     @Test
     void transferFromAccountToAccount_ShouldCorrectlyTransferMoney() {
 
-        UUID toAccountId = UUID.randomUUID();
+        UUID fromId = UUID.fromString("58badf86-8aee-4f35-b0ce-5bfa1ac70e39");
+        UUID toId = UUID.fromString("dfbde3fd-5f73-4198-9a49-aa89c4109438");
+
+        Account fromAccount = new Account();
+        fromAccount.setId(fromId);
+        fromAccount.setBalance(new BigDecimal("1000.00"));
+
         Account toAccount = new Account();
-        toAccount.setId(toAccountId);
-        toAccount.setBalance(BigDecimal.valueOf(500.00));
+        toAccount.setId(toId);
+        toAccount.setBalance(new BigDecimal("500.00"));
 
-        BigDecimal amount = BigDecimal.valueOf(100.00);
+        BigDecimal transferAmount = new BigDecimal("100.00");
 
-        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(testAccount));
-        when(accountRepository.findById(toAccountId)).thenReturn(Optional.of(toAccount));
-        doAnswer(invocation -> {
-            Account savedAccount = invocation.getArgument(0);
-            if (savedAccount.getId().equals(toAccountId)) {
-                toAccount.setBalance(savedAccount.getBalance());
-            }
-            return null;
-        }).when(accountRepository).save(any(Account.class));
+        when(accountRepository.findById(any(UUID.class)))
+                .thenAnswer(invocation -> {
+                    UUID id = invocation.getArgument(0);
+                    if (id.equals(fromId)) return Optional.of(fromAccount);
+                    if (id.equals(toId)) return Optional.of(toAccount);
+                    return Optional.empty();
+                });
 
-        accountService.transferFromAccountToAccount(ACCOUNT_ID, toAccountId, amount);
+        accountService.transferFromAccountToAccount(fromId, toId, transferAmount);
 
-        assertEquals(INITIAL_BALANCE.subtract(amount), testAccount.getBalance());
-        assertEquals(BigDecimal.valueOf(600.00), toAccount.getBalance());
+        assertEquals(new BigDecimal("900.00"), fromAccount.getBalance());
+        assertEquals(new BigDecimal("600.00"), toAccount.getBalance());
+        verify(accountRepository, times(2)).save(any(Account.class));
+        verify(transactionRepository).save(any(Transaction.class));
     }
 
     // перевод между счетами если не достаточно денег
